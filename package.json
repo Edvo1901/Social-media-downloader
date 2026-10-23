@@ -1,0 +1,40 @@
+{
+  "name": "social-media-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal downloader for public X/Instagram/Facebook videos",
+  "author": "me",
+  "main": "electron/main.js",
+  "scripts": {
+    "setup:backend": "python -m venv backend/.venv && backend\\.venv\\Scripts\\python -m pip install -r backend/requirements.txt",
+    "dev": "concurrently -k \"next dev -p 3000\" \"wait-on tcp:3000 && electron .\"",
+    "build:backend": "backend\\.venv\\Scripts\\python -m PyInstaller --onedir --name backend --distpath backend/dist --specpath backend/build --workpath backend/build --collect-all yt_dlp --collect-all imageio_ffmpeg backend/main.py",
+    "build:web": "next build",
+    "build:win": "pnpm build:backend && pnpm build:web && electron-builder --win portable"
+  },
+  "dependencies": {
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "concurrently": "^9.0.0",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0",
+    "typescript": "^5.0.0",
+    "wait-on": "^8.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["electron", "electron-winstaller", "esbuild"]
+  },
+  "build": {
+    "appId": "local.socialmediadownloader",
+    "productName": "SocialMediaDownloader",
+    "directories": { "output": "dist" },
+    "files": ["electron/**", "out/**"],
+    "extraResources": [{ "from": "backend/dist/backend", "to": "backend" }],
+    "win": { "target": "portable", "signAndEditExecutable": false }
+  }
+}

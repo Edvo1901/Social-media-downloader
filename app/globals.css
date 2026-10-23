@@ -1,0 +1,20 @@
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: #f4f5f7; color: #1c1e21; }
+.layout { display: flex; height: 100vh; }
+.sidebar { width: 180px; background: #1c1e21; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.sidebar button { background: none; border: 0; color: #ccc; text-align: left; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 15px; }
+.sidebar button.active { background: #3a3d42; color: #fff; }
+.main { flex: 1; overflow-y: auto; padding: 20px; }
+textarea { width: 100%; height: 100px; padding: 8px; font-family: inherit; }
+button.primary { background: #0a66ff; color: #fff; border: 0; padding: 8px 14px; border-radius: 6px; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+.actions { display: flex; gap: 8px; margin: 8px 0 16px; }
+.row { display: flex; gap: 14px; background: #fff; border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px #0002; }
+.row .media { width: 240px; flex-shrink: 0; }
+.row .media video, .row .media img { width: 100%; max-height: 180px; background: #000; object-fit: contain; border-radius: 4px; }
+.row .meta { flex: 1; min-width: 0; }
+.row .meta h3 { margin: 0 0 4px; font-size: 15px; }
+.row .url { color: #777; font-size: 12px; word-break: break-all; }
+.status { margin: 6px 0; font-weight: 600; }
+.status.failed { color: #c62828; }
+.status.done { color: #2e7d32; }
