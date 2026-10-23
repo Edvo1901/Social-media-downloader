@@ -57,6 +57,9 @@ export default function Downloader({ platform }: { platform: string }) {
     }
   }
 
+  // shortcut: removing a row mid-download hides it; the backend still finishes that file.
+  const remove = (key: number) => setRows((rs) => rs.filter((r) => r.key !== key));
+
   const downloadAll = () => rowsRef.current.filter((r) => r.status === 'ready').forEach(download);
 
   return (
@@ -66,9 +69,10 @@ export default function Downloader({ platform }: { platform: string }) {
       <div className="actions">
         <button className="primary" onClick={load} disabled={!text.trim()}>Load</button>
         <button className="primary" onClick={downloadAll} disabled={!rows.some((r) => r.status === 'ready')}>Download all</button>
+        <button className="secondary" onClick={() => setRows([])} disabled={!rows.length}>Delete all</button>
       </div>
       {rows.map((r) => (
-        <UrlRow key={r.key} row={r} onDownload={() => download(r)} />
+        <UrlRow key={r.key} row={r} onDownload={() => download(r)} onRemove={() => remove(r.key)} />
       ))}
     </div>
   );

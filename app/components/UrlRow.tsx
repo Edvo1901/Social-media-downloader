@@ -26,7 +26,7 @@ function statusText(r: Row) {
   }
 }
 
-export default function UrlRow({ row, onDownload }: { row: Row; onDownload: () => void }) {
+export default function UrlRow({ row, onDownload, onRemove }: { row: Row; onDownload: () => void; onRemove: () => void }) {
   const [videoFailed, setVideoFailed] = useState(false);
   const { info } = row;
   return (
@@ -44,11 +44,14 @@ export default function UrlRow({ row, onDownload }: { row: Row; onDownload: () =
         <div className="url">{row.url}</div>
         <div className={`status ${row.status}`}>{statusText(row)}</div>
         {row.status === 'done' && row.path && <div className="url">Saved to: {row.path}</div>}
-        {row.status !== 'done' && (
-          <button className="primary" onClick={onDownload} disabled={row.status !== 'ready' && row.status !== 'failed' || !info}>
-            Download
-          </button>
-        )}
+        <div className="actions">
+          {row.status !== 'done' && (
+            <button className="primary" onClick={onDownload} disabled={row.status !== 'ready' && row.status !== 'failed' || !info}>
+              Download
+            </button>
+          )}
+          <button className="secondary" onClick={onRemove}>Remove</button>
+        </div>
       </div>
     </div>
   );

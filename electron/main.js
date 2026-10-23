@@ -91,6 +91,16 @@ ipcMain.handle('dialog:pickFolder', async () => {
 });
 ipcMain.handle('backend:port', () => port);
 
+// One copy only: a second launch focuses the existing window instead of starting a hidden duplicate.
+if (!app.requestSingleInstanceLock()) app.exit(0);
+app.on('second-instance', () => {
+  const w = BrowserWindow.getAllWindows()[0];
+  if (w) {
+    if (w.isMinimized()) w.restore();
+    w.focus();
+  }
+});
+
 app.whenReady().then(async () => {
   port = await freePort();
   startBackend();
@@ -104,6 +114,7 @@ app.whenReady().then(async () => {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
+    icon: path.join(__dirname, 'icon.png'),
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false },
   });
   win.setMenuBarVisibility(false);
