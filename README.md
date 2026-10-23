@@ -10,7 +10,7 @@ Node.js, pnpm, Python 3.11+.
 pnpm install
 pnpm setup:backend     # creates backend/.venv and installs Python deps
 pnpm dev               # Next dev server + Electron
-pnpm build:win         # portable exe in dist/*.exe
+pnpm build:win         # app folder in dist/win-unpacked: copy it anywhere, run SocialMediaDownloader.exe
 backend\.venv\Scripts\python -m pytest backend/tests -q
 ```
 
