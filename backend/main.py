@@ -114,6 +114,13 @@ def info(req: InfoReq):
     }
 
 
+def finish(job, target):
+    # Never report done unless the file is really on disk.
+    if not core.should_skip(target):
+        raise RuntimeError(f"Download finished but no file was saved at {target}")
+    job.update(status="done", percent=100, path=target)
+
+
 def run_job(job_id, url, folder):
     job = jobs[job_id]
     try:
@@ -126,7 +133,7 @@ def run_job(job_id, url, folder):
         os.makedirs(folder, exist_ok=True)
         if i.get("direct_url"):
             fetch_direct(i["direct_url"], target, job)
-            job.update(status="done", percent=100, path=target)
+            finish(job, target)
             return
 
         def hook(d):
@@ -149,7 +156,7 @@ def run_job(job_id, url, folder):
         }
         with YoutubeDL(opts) as ydl:
             ydl.download([url])
-        job.update(status="done", percent=100, path=target)
+        finish(job, target)
     except Exception as e:
         job.update(status="failed", error=core.friendly_error(e))
 

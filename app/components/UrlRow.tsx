@@ -10,6 +10,7 @@ export type Row = {
   percent: number;
   error?: string;
   skipped?: boolean;
+  path?: string;
 };
 
 const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -42,6 +43,7 @@ export default function UrlRow({ row, onDownload }: { row: Row; onDownload: () =
         <div>{info?.uploader}{info?.duration != null && ` · ${mmss(info.duration)}`}</div>
         <div className="url">{row.url}</div>
         <div className={`status ${row.status}`}>{statusText(row)}</div>
+        {row.status === 'done' && row.path && <div className="url">Saved to: {row.path}</div>}
         {row.status !== 'done' && (
           <button className="primary" onClick={onDownload} disabled={row.status !== 'ready' && row.status !== 'failed' || !info}>
             Download

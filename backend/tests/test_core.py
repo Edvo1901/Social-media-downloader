@@ -26,3 +26,4 @@ def test_errors():
     assert core.friendly_error(Exception("ERROR: Sign in to confirm")).startswith("Login required")
     assert core.friendly_error(Exception("this video is private")).startswith("Login required")
     assert core.friendly_error(Exception("\x1b[0;31mERROR:\x1b[0m boom")) == "boom"
+    assert core.friendly_error(Exception("ERROR: [twitter] 1: Account suspended")).startswith("Account suspended")

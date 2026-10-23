@@ -40,7 +40,7 @@ export default function Downloader({ platform }: { platform: string }) {
       const timer = setInterval(async () => {
         try {
           const j = await getJob(job_id);
-          patch(r.key, { status: j.status, percent: j.percent, error: j.error ?? undefined, skipped: j.skipped });
+          patch(r.key, { status: j.status, percent: j.percent, error: j.error ?? undefined, skipped: j.skipped, path: j.path ?? undefined });
           if (j.status === 'done' || j.status === 'failed') {
             clearInterval(timer);
             timers.current.delete(timer);

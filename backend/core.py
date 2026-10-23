@@ -21,6 +21,8 @@ def should_skip(path):
 
 def friendly_error(exc):
     msg = _ANSI.sub("", str(exc)).strip()
+    if "suspend" in msg.lower():
+        return "Account suspended: X has suspended this account, so its videos can't be downloaded"
     if any(k in msg.lower() for k in _LOGIN):
         return "Login required: this post is not public"
     return re.sub(r"^ERROR:\s*", "", msg)
