@@ -1,6 +1,9 @@
 import argparse
+import json
 import os
+import re
 import sys
+import urllib.request
 import uuid
 from concurrent.futures import ThreadPoolExecutor
 
@@ -30,12 +33,55 @@ class DownloadReq(BaseModel):
     folder: str
 
 
+_TWEET = re.compile(r"(?:twitter|x)\.com/[^/]+/status/(\d+)", re.I)
+_UA = {"User-Agent": "Mozilla/5.0"}
+
+
+def fx_extract(url):
+    # X hides most tweets from logged-out yt-dlp; FxTwitter serves them without login.
+    m = _TWEET.search(url)
+    if not m:
+        return None
+    try:
+        with urllib.request.urlopen(urllib.request.Request(f"https://api.fxtwitter.com/status/{m[1]}", headers=_UA), timeout=15) as r:
+            t = json.load(r)["tweet"]
+        # shortcut: only the first video of a multi-video tweet, add a picker if needed
+        v = (t.get("media") or {}).get("videos")[0]
+    except Exception:
+        return None
+    return {
+        "id": t["id"],
+        "title": (t.get("text") or "").strip()[:100] or f"Tweet {t['id']}",
+        "uploader": t["author"].get("name") or t["author"].get("screen_name"),
+        "duration": v.get("duration"),
+        "thumbnail": v.get("thumbnail_url"),
+        "direct_url": v["url"],
+    }
+
+
 def extract(url):
+    fx = fx_extract(url)
+    if fx:
+        return fx
     with YoutubeDL({"quiet": True, "no_warnings": True, "noplaylist": True, "skip_download": True}) as ydl:
         return ydl.extract_info(url, download=False)
 
 
+def fetch_direct(src, target, job):
+    part = target + ".part"
+    with urllib.request.urlopen(urllib.request.Request(src, headers=_UA), timeout=30) as r, open(part, "wb") as f:
+        total, done = int(r.headers.get("Content-Length") or 0), 0
+        while chunk := r.read(1 << 16):
+            f.write(chunk)
+            done += len(chunk)
+            if total:
+                job["percent"] = min(99.0, done * 100 / total)
+    os.replace(part, target)
+
+
 def stream_url(info):
+    if info.get("direct_url"):
+        return info["direct_url"]
     for f in reversed(info.get("formats") or []):
         if (
             f.get("protocol") == "https"
@@ -77,6 +123,11 @@ def run_job(job_id, url, folder):
             job.update(status="done", percent=100, path=target, skipped=True)
             return
         job["status"] = "downloading"
+        os.makedirs(folder, exist_ok=True)
+        if i.get("direct_url"):
+            fetch_direct(i["direct_url"], target, job)
+            job.update(status="done", percent=100, path=target)
+            return
 
         def hook(d):
             if d["status"] == "downloading":
@@ -85,7 +136,6 @@ def run_job(job_id, url, folder):
                     # shortcut: percent is per-stream (video then audio), not overall
                     job["percent"] = min(99.0, d["downloaded_bytes"] * 100 / total)
 
-        os.makedirs(folder, exist_ok=True)
         opts = {
             "quiet": True,
             "no_warnings": True,

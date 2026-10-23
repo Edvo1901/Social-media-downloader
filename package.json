@@ -8,7 +8,7 @@
   "scripts": {
     "setup:backend": "python -m venv backend/.venv && backend\\.venv\\Scripts\\python -m pip install -r backend/requirements.txt",
     "dev": "concurrently -k \"next dev -p 3000\" \"wait-on tcp:3000 && electron .\"",
-    "build:backend": "backend\\.venv\\Scripts\\python -m PyInstaller --onedir --name backend --distpath backend/dist --specpath backend/build --workpath backend/build --collect-all yt_dlp --collect-all imageio_ffmpeg backend/main.py",
+    "build:backend": "backend\\.venv\\Scripts\\python -m PyInstaller --noconfirm --onedir --name backend --distpath backend/dist --specpath backend/build --workpath backend/build --collect-all yt_dlp --collect-all imageio_ffmpeg backend/main.py",
     "build:web": "next build",
     "build:win": "pnpm build:backend && pnpm build:web && electron-builder --win portable"
   },
